@@ -57,7 +57,7 @@ export default class SelectionUtils {
   public isFakeBackgroundEnabled = false;
 
   /**
-   * Native Document's commands for fake background
+   * Native Document's command for fake background
    */
   private readonly commandBackground: string = 'backColor';
 
