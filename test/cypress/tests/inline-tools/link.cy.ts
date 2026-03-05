@@ -192,4 +192,34 @@ describe('Inline Tool Link', () => {
       .should('have.attr', 'href', 'https://editorjs.io')
       .should('contain', 'Bold and italic text');
   });
+
+  it('should open formatted link in the same tab', () => {
+    cy.createEditor({
+      data: {
+        blocks: [
+          {
+            type: 'paragraph',
+            data: {
+              text: 'Link text',
+            },
+          },
+        ],
+      },
+    });
+
+    const editor = '[data-cy=editorjs]';
+
+    cy.get(`${editor} .ce-paragraph`).selectText('Link text');
+    cy.get(`${editor} [data-item-name=link]`).click();
+    cy.get(`${editor} .ce-inline-tool-input`).type('https://test.io{enter}');
+
+    cy.get(`${editor} a`).selectText('Link text');
+    cy.get(`${editor} [data-item-name=italic]`).click();
+
+    cy.window().then((win) => cy.stub(win, 'open').as('open'));
+
+    cy.contains(`${editor} i`, 'Link text').click({ ctrlKey: true });
+
+    cy.get('@open').should('have.been.calledWith', 'https://test.io/');
+  })
 });
