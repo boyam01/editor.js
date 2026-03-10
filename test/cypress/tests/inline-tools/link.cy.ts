@@ -207,19 +207,35 @@ describe('Inline Tool Link', () => {
       },
     });
 
-    const editor = '[data-cy=editorjs]';
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .selectText('Link text');
 
-    cy.get(`${editor} .ce-paragraph`).selectText('Link text');
-    cy.get(`${editor} [data-item-name=link]`).click();
-    cy.get(`${editor} .ce-inline-tool-input`).type('https://test.io{enter}');
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=link]')
+      .click();
 
-    cy.get(`${editor} a`).selectText('Link text');
-    cy.get(`${editor} [data-item-name=italic]`).click();
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-inline-tool-input')
+      .type('https://test.io/')
+      .type('{enter}');
 
-    cy.window().then((win) => cy.stub(win, 'open').as('open'));
+    cy.get('[data-cy=editorjs]')
+      .find('div.ce-block')
+      .find('a')
+      .selectText('Link text');
 
-    cy.contains(`${editor} i`, 'Link text').click({ ctrlKey: true });
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=italic]')
+      .click();
 
-    cy.get('@open').should('have.been.calledWith', 'https://test.io/');
-  })
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('windowOpen');
+    });
+
+    cy.contains('[data-cy=editorjs] div.ce-block i', 'Link text')
+      .click({ ctrlKey: true });
+
+    cy.get('@windowOpen').should('be.calledWith', 'https://test.io/');
+  });
 });
