@@ -193,7 +193,7 @@ describe('Inline Tool Link', () => {
       .should('contain', 'Bold and italic text');
   });
 
-  it('should open formatted link in the same tab', () => {
+  it('should open a link if it is wrapped in another formatting', () => {
     cy.createEditor({
       data: {
         blocks: [
