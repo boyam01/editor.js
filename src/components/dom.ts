@@ -572,7 +572,7 @@ export default class Dom {
    * @param element - element to check
    * @returns {HTMLAnchorElement | null}
    */
-  public static getAnchor(element: Element): HTMLAnchorElement | null {
+  public static getClosestAnchor(element: Element): HTMLAnchorElement | null {
     return element.closest("a");
   }
 
