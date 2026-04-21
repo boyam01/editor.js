@@ -270,10 +270,10 @@ export default class LinkInlineTool implements InlineTool {
 
       this.selection.restore();
       this.selection.removeFakeBackground();
-      
+  
       // check if other selection happend outside popover element
       if (this.checkSelectionTarget(currentSelection.savedSelectionRange)) {
-       // and recover new selection
+        // and recover new selection
         currentSelection.restore();
       } 
     }
