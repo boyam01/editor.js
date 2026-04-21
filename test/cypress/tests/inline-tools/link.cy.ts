@@ -303,11 +303,18 @@ describe('Inline Tool Link', () => {
       .find('[data-item-name=link]')
       .click();
     
-    cy.get('[data-cy=editorjs]').click(0, 0);
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .click();
 
     cy.get('[data-cy=editorjs]')
-      .find('.ce-popover')
-      .should('not.be.visible');
+      .find('[data-item-name=link]')
+      .should('not.exist');
+    
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .find('span')
+      .should('not.exist');
   });
 
   it('should restore selection and apply formatting on other popover item block click', () => {
