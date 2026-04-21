@@ -238,4 +238,108 @@ describe('Inline Tool Link', () => {
 
     cy.get('@windowOpen').should('be.calledWith', 'https://test.io/');
   });
+
+  it('should unlink on popover item block click', () => {
+    cy.createEditor({
+      data: {
+        blocks: [
+          {
+            type: 'paragraph',
+            data: {
+              text: 'Link text',
+            },
+          },
+        ],
+      },
+    });
+
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .selectText('Link text');
+
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=link]')
+      .click();
+
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-inline-tool-input')
+      .type('https://test.io/')
+      .type('{enter}');
+
+    cy.get('[data-cy=editorjs]')
+      .find('div.ce-block')
+      .find('a')
+      .selectText('Link text');
+    
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=link]')
+      .click();
+    
+    cy.get('[data-cy=editorjs]')
+      .find('div.ce-block')
+      .find('a')
+      .should("not.exist");
+  });
+
+  it('should hide popover on selection change', () => {
+    cy.createEditor({
+      data: {
+        blocks: [
+          {
+            type: 'paragraph',
+            data: {
+              text: 'Link text',
+            },
+          },
+        ],
+      },
+    });
+
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .selectText('Link text');
+
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=link]')
+      .click();
+    
+    cy.get('[data-cy=editorjs]').click(0, 0);
+
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-popover')
+      .should('not.be.visible');
+  });
+
+  it('should restore selection and apply formatting on other popover item block click', () => {
+    cy.createEditor({
+      data: {
+        blocks: [
+          {
+            type: 'paragraph',
+            data: {
+              text: 'Link text',
+            },
+          },
+        ],
+      },
+    });
+
+    cy.get('[data-cy=editorjs]')
+      .find('.ce-paragraph')
+      .selectText('Link text');
+
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=link]')
+      .click();
+
+    cy.get('[data-cy=editorjs]')
+      .find('[data-item-name=bold]')
+      .click();
+    
+    cy.get('[data-cy=editorjs]')
+      .find('div.ce-block')
+      .find('b')
+      .should("exist")
+      .and('have.text', 'Link text');
+  });
 });
