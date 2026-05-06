@@ -176,7 +176,7 @@ describe('Inline Toolbar', () => {
   });
 
   describe('Shortcuts', () => {
-    it('should work when multiple editor instances are present on the same page', () => {
+    it('should activate the focused editor\'s tool when shortcut is pressed with multiple instances on the page', () => {
       const toolActivated1 = cy.stub().as('toolActivated1');
       const toolActivated2 = cy.stub().as('toolActivated2');
 
