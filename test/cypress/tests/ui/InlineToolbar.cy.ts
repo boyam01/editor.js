@@ -176,6 +176,96 @@ describe('Inline Toolbar', () => {
   });
 
   describe('Shortcuts', () => {
+    it('should work when multiple editor instances are present on the same page', () => {
+      const toolActivated1 = cy.stub().as('toolActivated1');
+      const toolActivated2 = cy.stub().as('toolActivated2');
+
+      /* eslint-disable jsdoc/require-jsdoc */
+      class Marker1 implements InlineTool {
+        public static isInline = true;
+        public static shortcut = 'CMD+SHIFT+M';
+        public render(): MenuConfig {
+          return {
+            icon: 'm',
+            title: 'Marker',
+            onActivate: () => { toolActivated1(); },
+          };
+        }
+      }
+      class Marker2 implements InlineTool {
+        public static isInline = true;
+        public static shortcut = 'CMD+SHIFT+M';
+        public render(): MenuConfig {
+          return {
+            icon: 'm',
+            title: 'Marker',
+            onActivate: () => { toolActivated2(); },
+          };
+        }
+      }
+      /* eslint-enable jsdoc/require-jsdoc */
+
+      /** Create first editor */
+      cy.createEditor({
+        data: {
+          blocks: [ { type: 'paragraph', data: { text: 'First editor text' } } ],
+        },
+        tools: { marker: Marker1 },
+      });
+
+      /** Create second editor with a different holder */
+      cy.window().then((win) => {
+        const holder = win.document.createElement('div');
+
+        holder.id = 'editorjs2';
+        holder.dataset.cy = 'editorjs2';
+        win.document.body.appendChild(holder);
+
+        return new Promise<void>((resolve) => {
+          const editor2 = new win.EditorJS({
+            holder: 'editorjs2',
+            data: {
+              blocks: [ { type: 'paragraph', data: { text: 'Second editor text' } } ],
+            },
+            tools: { marker: Marker2 },
+          });
+
+          editor2.isReady.then(() => resolve());
+        });
+      });
+
+      /** Select text in first editor to open its inline toolbar and register its shortcuts */
+      cy.get('[data-cy=editorjs]')
+        .find('.ce-paragraph')
+        .selectText('editor');
+
+      /** Select text in second editor — closes the first editor's toolbar and opens the second's */
+      cy.get('[data-cy=editorjs2]')
+        .find('.ce-paragraph')
+        .selectText('editor');
+
+      /** Wait for the second editor's inline toolbar to be visible before dispatching the shortcut */
+      cy.get('[data-cy=editorjs2] [data-cy="inline-toolbar"] .ce-popover__container')
+        .should('be.visible');
+
+      cy.document().then((doc) => {
+        doc.dispatchEvent(new KeyboardEvent('keydown', {
+          bubbles: true,
+          cancelable: true,
+          key: 'M',
+          code: 'KeyM',
+          keyCode: 77,
+          which: 77,
+          metaKey: true,
+          shiftKey: true,
+        }));
+      });
+
+      /** Second editor's shortcut should fire, first editor's should not */
+      cy.get('@toolActivated2').should('have.been.called');
+      cy.get('@toolActivated1').should('not.have.been.called');
+    });
+
     it('should work in read-only mode', () => {
       const toolSurround = cy.stub().as('toolSurround');
 
