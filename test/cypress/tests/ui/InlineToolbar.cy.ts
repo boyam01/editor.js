@@ -213,9 +213,7 @@ describe('Inline Toolbar', () => {
         tools: { marker: Marker1 },
       });
 
-      /** Create second editor with a different holder; keep a reference for the API call below */
-      let editor2Ref: any;
-
+      /** Create second editor with a different holder */
       cy.window().then((win) => {
         const holder = win.document.createElement('div');
 
@@ -224,7 +222,7 @@ describe('Inline Toolbar', () => {
         win.document.body.appendChild(holder);
 
         return new Promise<void>((resolve) => {
-          editor2Ref = new win.EditorJS({
+          const editor2 = new win.EditorJS({
             holder: 'editorjs2',
             data: {
               blocks: [ { type: 'paragraph', data: { text: 'Second editor text' } } ],
@@ -232,65 +230,40 @@ describe('Inline Toolbar', () => {
             tools: { marker: Marker2 },
           });
 
-          editor2Ref.isReady.then(() => resolve());
+          editor2.isReady.then(() => resolve());
         });
       });
 
       /**
-       * Freeze the browser clock after both editors are ready.
-       * This gives us deterministic control over the selectionchange debounce (180 ms).
+       * Select text in editor 1 first to open its inline toolbar.
+       * This causes editor 1's CMD+SHIFT+M shortcut to be registered on document.
+       * Without the inline.ts fix, this shortcut would never be removed from document,
+       * so any later attempt by editor 2 to register the same shortcut would throw a
+       * duplicate-registration error (silently swallowed), leaving editor 2 with no shortcut.
        */
-      cy.clock();
-
-      /** Select text in editor 1 to open its inline toolbar and register its CMD+SHIFT+M shortcut */
       cy.get('[data-cy=editorjs]')
         .find('.ce-paragraph')
         .selectText('First');
 
-      /**
-       * Advance past the selectionchange debounce.
-       * Editor 1's toolbar is now open and its CMD+SHIFT+M handler is registered on document.
-       */
-      cy.tick(200);
-
+      /** Wait for editor 1's inline toolbar to appear (confirms its shortcut is now registered) */
       cy.get('[data-cy=editorjs] [data-cy="inline-toolbar"] .ce-popover__container')
         .should('be.visible');
 
       /**
-       * Select text in editor 2.  The selectionchange debounce is queued but the clock is still
-       * frozen, so editor 1's CMD+SHIFT+M handler has NOT been removed yet — it is still live
-       * on document.
+       * Now select text in editor 2.
+       * The selectionchange event fires, which (after the 180 ms debounce):
+       *   1. Calls editor 1's InlineToolbar.close() — with the inline.ts fix this correctly
+       *      calls Shortcuts.remove(document, shortcut), removing editor 1's handler from document.
+       *   2. Calls editor 2's InlineToolbar.open() — registers editor 2's handler on document.
+       * Without the inline.ts fix, step 1 was a no-op (wrong target element), so editor 2's
+       * registration in step 2 always hit the duplicate guard and threw, leaving editor 2 with
+       * no working shortcut at all.
        */
       cy.get('[data-cy=editorjs2]')
         .find('.ce-paragraph')
         .selectText('Second');
 
-      /**
-       * Open editor 2's inline toolbar programmatically BEFORE the pending debounce fires.
-       * Because the selection is in editor 2, allowedToShow() returns true.
-       * enableShortcuts() then tries to register CMD+SHIFT+M while editor 1's handler is still
-       * present — a simultaneous duplicate-registration.
-       *
-       * Without the shortcuts.ts fix (which removed the throw on duplicate): this throws and is
-       * silently swallowed by the try/catch in getPopoverItems(), leaving editor 2 with no
-       * shortcut handler at all.
-       * With the fix: both handlers are registered; each guards with `if (!currentBlock) return`
-       * so only the focused editor's handler actually does anything.
-       */
-      cy.window().then(() => {
-        editor2Ref.inlineToolbar.open();
-      });
-
-      /**
-       * Advance past the pending debounces:
-       * - Editor 1's selectionchange handler calls close(), which removes its shortcut via
-       *   Shortcuts.remove(document, …) — this is the inline.ts fix; before the fix it called
-       *   remove(redactor, …) which was a no-op, so editor 1's shortcut would have remained.
-       * - Editor 2's selectionchange handler calls tryToShow(true), re-opening its toolbar cleanly.
-       */
-      cy.tick(200);
-
-      /** Wait for editor 2's toolbar to be visible */
+      /** Wait for editor 2's inline toolbar to appear (confirms its shortcut is now registered) */
       cy.get('[data-cy=editorjs2] [data-cy="inline-toolbar"] .ce-popover__container')
         .should('be.visible');
 
