@@ -329,18 +329,20 @@ describe('Inline Toolbar', () => {
 
       cy.wait(300);
 
-      cy.document().then((doc) => {
-        doc.dispatchEvent(new KeyboardEvent('keydown', {
-          bubbles: true,
-          cancelable: true,
-          key: 'M',
-          code: 'KeyM',
-          keyCode: 77,
-          which: 77,
-          metaKey: true,
-          shiftKey: true,
-        }));
-      });
+      cy.get('[data-cy=editorjs]')
+        .find('.ce-paragraph')
+        .then(($el) => {
+          $el[0].dispatchEvent(new KeyboardEvent('keydown', {
+            bubbles: true,
+            cancelable: true,
+            key: 'M',
+            code: 'KeyM',
+            keyCode: 77,
+            which: 77,
+            metaKey: true,
+            shiftKey: true,
+          }));
+        });
 
       cy.get('@toolSurround').should('have.been.called');
     });
