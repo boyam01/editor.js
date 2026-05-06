@@ -213,7 +213,9 @@ describe('Inline Toolbar', () => {
         tools: { marker: Marker1 },
       });
 
-      /** Create second editor with a different holder */
+      /** Create second editor with a different holder; keep a reference for the API call below */
+      let editor2Ref: any;
+
       cy.window().then((win) => {
         const holder = win.document.createElement('div');
 
@@ -222,7 +224,7 @@ describe('Inline Toolbar', () => {
         win.document.body.appendChild(holder);
 
         return new Promise<void>((resolve) => {
-          const editor2 = new win.EditorJS({
+          editor2Ref = new win.EditorJS({
             holder: 'editorjs2',
             data: {
               blocks: [ { type: 'paragraph', data: { text: 'Second editor text' } } ],
@@ -230,21 +232,65 @@ describe('Inline Toolbar', () => {
             tools: { marker: Marker2 },
           });
 
-          editor2.isReady.then(() => resolve());
+          editor2Ref.isReady.then(() => resolve());
         });
       });
 
-      /** Select text in first editor to open its inline toolbar and register its shortcuts */
+      /**
+       * Freeze the browser clock after both editors are ready.
+       * This gives us deterministic control over the selectionchange debounce (180 ms).
+       */
+      cy.clock();
+
+      /** Select text in editor 1 to open its inline toolbar and register its CMD+SHIFT+M shortcut */
       cy.get('[data-cy=editorjs]')
         .find('.ce-paragraph')
-        .selectText('editor');
+        .selectText('First');
 
-      /** Select text in second editor — closes the first editor's toolbar and opens the second's */
+      /**
+       * Advance past the selectionchange debounce.
+       * Editor 1's toolbar is now open and its CMD+SHIFT+M handler is registered on document.
+       */
+      cy.tick(200);
+
+      cy.get('[data-cy=editorjs] [data-cy="inline-toolbar"] .ce-popover__container')
+        .should('be.visible');
+
+      /**
+       * Select text in editor 2.  The selectionchange debounce is queued but the clock is still
+       * frozen, so editor 1's CMD+SHIFT+M handler has NOT been removed yet — it is still live
+       * on document.
+       */
       cy.get('[data-cy=editorjs2]')
         .find('.ce-paragraph')
-        .selectText('editor');
+        .selectText('Second');
 
-      /** Wait for the second editor's inline toolbar to be visible before dispatching the shortcut */
+      /**
+       * Open editor 2's inline toolbar programmatically BEFORE the pending debounce fires.
+       * Because the selection is in editor 2, allowedToShow() returns true.
+       * enableShortcuts() then tries to register CMD+SHIFT+M while editor 1's handler is still
+       * present — a simultaneous duplicate-registration.
+       *
+       * Without the shortcuts.ts fix (which removed the throw on duplicate): this throws and is
+       * silently swallowed by the try/catch in getPopoverItems(), leaving editor 2 with no
+       * shortcut handler at all.
+       * With the fix: both handlers are registered; each guards with `if (!currentBlock) return`
+       * so only the focused editor's handler actually does anything.
+       */
+      cy.window().then(() => {
+        editor2Ref.inlineToolbar.open();
+      });
+
+      /**
+       * Advance past the pending debounces:
+       * - Editor 1's selectionchange handler calls close(), which removes its shortcut via
+       *   Shortcuts.remove(document, …) — this is the inline.ts fix; before the fix it called
+       *   remove(redactor, …) which was a no-op, so editor 1's shortcut would have remained.
+       * - Editor 2's selectionchange handler calls tryToShow(true), re-opening its toolbar cleanly.
+       */
+      cy.tick(200);
+
+      /** Wait for editor 2's toolbar to be visible */
       cy.get('[data-cy=editorjs2] [data-cy="inline-toolbar"] .ce-popover__container')
         .should('be.visible');
 
