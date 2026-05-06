@@ -267,18 +267,27 @@ describe('Inline Toolbar', () => {
       cy.get('[data-cy=editorjs2] [data-cy="inline-toolbar"] .ce-popover__container')
         .should('be.visible');
 
-      cy.document().then((doc) => {
-        doc.dispatchEvent(new KeyboardEvent('keydown', {
-          bubbles: true,
-          cancelable: true,
-          key: 'M',
-          code: 'KeyM',
-          keyCode: 77,
-          which: 77,
-          metaKey: true,
-          shiftKey: true,
-        }));
-      });
+      /**
+       * Dispatch the shortcut key event on the editor 2 paragraph element (not on document).
+       * Dispatching directly on document makes event.target === document, which does not have
+       * .closest() — causing a TypeError in ui.ts defaultBehaviour.
+       * Dispatching on the focused element gives event.target an HTMLElement with .closest(),
+       * and the event still bubbles up to document where the shortcut handler is registered.
+       */
+      cy.get('[data-cy=editorjs2]')
+        .find('.ce-paragraph')
+        .then(($el) => {
+          $el[0].dispatchEvent(new KeyboardEvent('keydown', {
+            bubbles: true,
+            cancelable: true,
+            key: 'M',
+            code: 'KeyM',
+            keyCode: 77,
+            which: 77,
+            metaKey: true,
+            shiftKey: true,
+          }));
+        });
 
       /** Second editor's shortcut should fire, first editor's should not */
       cy.get('@toolActivated2').should('have.been.called');
