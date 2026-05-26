@@ -52,12 +52,6 @@ export default class LinkInlineTool implements InlineTool {
   private readonly ENTER_KEY: number = 13;
 
   /**
-   * Popover item block CSS class
-   */
-  private readonly POPOVER_ITEM_CLASSNAME = "ce-popover-item-html";
-
-
-  /**
    * Styles
    */
   private readonly CSS = {
@@ -270,12 +264,12 @@ export default class LinkInlineTool implements InlineTool {
 
       this.selection.restore();
       this.selection.removeFakeBackground();
-  
-      // check if other selection happend outside popover element
-      if (this.checkSelectionTarget(currentSelection.savedSelectionRange)) {
-        // and recover new selection
+
+      // check if other selection happend
+      if (!currentSelection.savedSelectionRange.collapsed) {
+        // and recover new selection after removing fake background
         currentSelection.restore();
-      } 
+      }
     }
 
     this.nodes.input.classList.remove(this.CSS.inputShowed);
@@ -411,23 +405,5 @@ export default class LinkInlineTool implements InlineTool {
    */
   private unlink(): void {
     document.execCommand(this.commandUnlink);
-  }
-
-  /**
-   * Checks if the current selection range starts outside
-   * of a popover item element
-   * 
-   * @param range - The DOM Range to evaluate.
-   * @returns `true` if popover item block is selection target otherwise - `false`.
-   */
-  private checkSelectionTarget(range: Range): boolean {
-    const container = range.startContainer;
-    if (container instanceof HTMLElement) {
-      if (container.classList.contains(this.POPOVER_ITEM_CLASSNAME)) {
-        return false;
-      }
-    }
-
-    return true;
   }
 }
