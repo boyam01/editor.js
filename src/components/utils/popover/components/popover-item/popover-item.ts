@@ -26,21 +26,6 @@ export abstract class PopoverItem {
   }
 
   /**
-   * Calls instance clear function
-   */
-  public clear(): void {
-    if (this.params === undefined) {
-      return;
-    }
-
-    if (!('onClear' in this.params)) {
-      return;
-    }
-
-    this.params.onClear?.(this.params);
-  }
-
-  /**
    * Destroys the instance
    */
   public destroy(): void {

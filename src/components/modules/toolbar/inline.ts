@@ -391,9 +391,6 @@ export default class InlineToolbar extends Module<InlineToolbarNodes> {
           onActivate: () => {
             this.toolClicked(instance);
           },
-          onClear: () => {
-            instance?.clear?.();
-          },
           hint: {
             title: toolTitle,
             description: shortcutBeautified,

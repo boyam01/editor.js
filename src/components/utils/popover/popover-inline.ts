@@ -167,9 +167,9 @@ export class PopoverInline extends PopoverDesktop {
     if (item !== this.nestedPopoverTriggerItem) {
       /**
        * In case tool had special handling for toggling button (like link tool which modifies selection)
-       * we need to call clear on nested popover trigger item to restore initial state
+       * we need to call handleClick on nested popover trigger item
        */
-      this.nestedPopoverTriggerItem?.clear();
+      this.nestedPopoverTriggerItem?.handleClick();
 
       /**
        * Then close the nested popover

@@ -178,13 +178,6 @@ export interface PopoverItemDefaultBaseParams {
    * @param event - event that initiated item activation
    */
   onActivate: (item: PopoverItemParams, event?: PointerEvent) => void;
-
-  /**
-   * Popover item clear handler
-   * 
-   * @param item - item to be cleared
-   */
-  onClear: (item: PopoverItemParams) => void;
 }
 
 /**

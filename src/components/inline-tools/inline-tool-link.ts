@@ -172,11 +172,21 @@ export default class LinkInlineTool implements InlineTool {
        * Unlink icon pressed
        */
       if (parentAnchor) {
-        this.selection.expandToTag(parentAnchor);
-        this.unlink();
-        this.closeActions();
-        this.checkState();
-        this.toolbar.close();
+        /**
+         * If input is not opened, treat click as explicit unlink action.
+         * If input is opened (e.g., programmatic close when switching tools), avoid unlinking.
+         */
+        if (!this.inputOpened) {
+          this.selection.expandToTag(parentAnchor);
+          this.unlink();
+          this.closeActions();
+          this.checkState();
+          this.toolbar.close();
+        } else {
+          /** Only close actions without clearing saved selection to preserve user state */
+          this.closeActions(false);
+          this.checkState();
+        }
 
         return;
       }
@@ -260,16 +270,14 @@ export default class LinkInlineTool implements InlineTool {
     if (this.selection.isFakeBackgroundEnabled) {
       // if actions is broken by other selection We need to save new selection
       const currentSelection = new SelectionUtils();
+
       currentSelection.save();
 
       this.selection.restore();
       this.selection.removeFakeBackground();
 
-      // check if other selection happend
-      if (!currentSelection.savedSelectionRange.collapsed) {
-        // and recover new selection after removing fake background
-        currentSelection.restore();
-      }
+      // and recover new selection after removing fake background
+      currentSelection.restore();
     }
 
     this.nodes.input.classList.remove(this.CSS.inputShowed);
