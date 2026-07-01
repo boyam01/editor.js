@@ -70,14 +70,14 @@ export default class LinkInlineTool implements InlineTool {
     button: HTMLButtonElement;
     input: HTMLInputElement;
   } = {
-    button: null,
-    input: null,
-  };
+      button: null,
+      input: null,
+    };
 
   /**
    * Indicates whether the button has been clicked
    */
-  private BUTTON_CLICKED: boolean = false;
+  private BUTTON_CLICKED = false;
 
   /**
    * SelectionUtils instance
