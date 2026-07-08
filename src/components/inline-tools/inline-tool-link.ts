@@ -176,11 +176,14 @@ export default class LinkInlineTool implements InlineTool {
         this.selection.removeFakeBackground();
       }
       const parentAnchor = this.selection.findParentTag('A');
+      const buttonClicked = this.BUTTON_CLICKED;
+      
+      this.BUTTON_CLICKED = false;
 
       /**
        * Unlink icon pressed
        */
-      if (parentAnchor && this.BUTTON_CLICKED) {
+      if (parentAnchor && buttonClicked) {
         this.selection.expandToTag(parentAnchor);
         this.unlink();
         this.closeActions();
@@ -191,7 +194,6 @@ export default class LinkInlineTool implements InlineTool {
       }
     }
 
-    this.BUTTON_CLICKED = false;
     this.toggleActions();
   }
 
