@@ -130,7 +130,7 @@ export default class LinkInlineTool implements InlineTool {
 
     this.nodes.button.innerHTML = IconLink;
 
-    this.nodes.button.addEventListener("click", () => {
+    this.nodes.button.addEventListener('click', () => {
       this.BUTTON_CLICKED = true;
     });
 

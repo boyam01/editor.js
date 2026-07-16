@@ -278,7 +278,7 @@ describe('Inline Tool Link', () => {
     cy.get('[data-cy=editorjs]')
       .find('div.ce-block')
       .find('a')
-      .should("not.exist");
+      .should('not.exist');
   });
 
   it('should hide popover on selection change', () => {
@@ -346,7 +346,7 @@ describe('Inline Tool Link', () => {
     cy.get('[data-cy=editorjs]')
       .find('div.ce-block')
       .find('b')
-      .should("exist")
+      .should('exist')
       .and('have.text', 'Link text');
   });
 });
