@@ -161,6 +161,13 @@ export default class LinkInlineTool implements InlineTool {
    */
   public surround(range: Range): void {
     /**
+     * Preserve the current click state
+     */
+    const buttonClicked = this.BUTTON_CLICKED;
+
+    this.BUTTON_CLICKED = false;
+
+    /**
      * Range will be null when user makes second click on the 'link icon' to close opened input
      */
     if (range) {
@@ -176,9 +183,6 @@ export default class LinkInlineTool implements InlineTool {
         this.selection.removeFakeBackground();
       }
       const parentAnchor = this.selection.findParentTag('A');
-      const buttonClicked = this.BUTTON_CLICKED;
-      
-      this.BUTTON_CLICKED = false;
 
       /**
        * Unlink icon pressed
