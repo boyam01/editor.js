@@ -3,10 +3,8 @@
 }
 
 @media (--not-mobile){
-  @container editor (width < 650px) {
-    .ce-toolbox .ce-popover {
-      right: 0;
-      left: unset;
-    }
+  .codex-editor--compact .ce-toolbox .ce-popover {
+    right: 0;
+    left: unset;
   }
 }

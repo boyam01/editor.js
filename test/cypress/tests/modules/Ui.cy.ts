@@ -51,6 +51,26 @@ describe('Ui module', function () {
           expect(plusButtonRect.right).to.be.at.most(holderRect.right);
         });
     });
+
+    it('should keep the rectangle selection overlay fixed to the viewport', function () {
+      cy.viewport(1000, 800);
+      cy.createEditor();
+
+      cy.get('[data-cy=editorjs]')
+        .invoke('css', {
+          marginLeft: '40px',
+          width: '500px',
+        })
+        .find('.codex-editor-overlay')
+        .then(($overlay) => {
+          const overlayRect = $overlay[0].getBoundingClientRect();
+
+          expect(overlayRect.left).to.equal(0);
+          expect(overlayRect.top).to.equal(0);
+          expect(overlayRect.right).to.equal(1000);
+          expect(overlayRect.bottom).to.equal(800);
+        });
+    });
   });
 
   describe('documentKeydown', function () {

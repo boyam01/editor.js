@@ -2,7 +2,6 @@
 * Editor wrapper
 */
 .codex-editor {
-  container: editor / inline-size;
   position: relative;
   box-sizing: border-box;
   z-index: 1;
@@ -71,19 +70,17 @@
 }
 
 @media (--not-mobile) {
-  @container editor (width < 650px) {
-    .codex-editor .codex-editor__redactor {
-      margin-right: var(--toolbar-actions-space);
-    }
+  .codex-editor--compact .codex-editor__redactor {
+    margin-right: var(--toolbar-actions-space);
+  }
 
-    .codex-editor.codex-editor--rtl .codex-editor__redactor {
-      margin-left: var(--toolbar-actions-space);
-      margin-right: 0;
-    }
+  .codex-editor--compact.codex-editor--rtl .codex-editor__redactor {
+    margin-left: var(--toolbar-actions-space);
+    margin-right: 0;
+  }
 
-    .codex-editor .ce-toolbar__actions {
-      right: -5px;
-    }
+  .codex-editor--compact .ce-toolbar__actions {
+    right: -5px;
   }
 }
 

@@ -49,11 +49,12 @@ export default class UI extends Module<UINodes> {
    * @returns {{editorWrapper: string, editorZone: string}}
    */
   public get CSS(): {
-    editorWrapper: string; editorZone: string; editorZoneHidden: string;
+    editorWrapper: string; editorWrapperCompact: string; editorZone: string; editorZoneHidden: string;
     editorEmpty: string; editorRtlFix: string;
     } {
     return {
       editorWrapper: 'codex-editor',
+      editorWrapperCompact: 'codex-editor--compact',
       editorZone: 'codex-editor__redactor',
       editorZoneHidden: 'codex-editor__redactor--hidden',
       editorEmpty: 'codex-editor--empty',
@@ -104,6 +105,11 @@ export default class UI extends Module<UINodes> {
    * @type {DOMRect}
    */
   private contentRectCache: DOMRect | null = null;
+
+  /**
+   * Watches the editor wrapper without forcing synchronous layout during initialization
+   */
+  private containerResizeObserver: ResizeObserver | null = null;
 
   /**
    * Handle window resize only when it finished
@@ -226,6 +232,9 @@ export default class UI extends Module<UINodes> {
    * Clean editor`s UI
    */
   public destroy(): void {
+    this.containerResizeObserver?.disconnect();
+    this.containerResizeObserver = null;
+
     this.nodes.holder.innerHTML = '';
 
     this.unbindReadOnlyInsensitiveListeners();
@@ -297,7 +306,26 @@ export default class UI extends Module<UINodes> {
     this.nodes.wrapper.appendChild(this.nodes.redactor);
     this.nodes.holder.appendChild(this.nodes.wrapper);
 
+    this.watchContainerWidth();
+
     this.bindReadOnlyInsensitiveListeners();
+  }
+
+  /**
+   * Keeps controls inside wrappers that are narrower than the default content width
+   */
+  private watchContainerWidth(): void {
+    this.containerResizeObserver = new ResizeObserver(([ entry ]) => {
+      if (entry === undefined) {
+        return;
+      }
+
+      this.nodes.wrapper.classList.toggle(
+        this.CSS.editorWrapperCompact,
+        entry.contentRect.width < mobileScreenBreakpoint
+      );
+    });
+    this.containerResizeObserver.observe(this.nodes.wrapper);
   }
 
   /**

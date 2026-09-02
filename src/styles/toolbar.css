@@ -85,9 +85,7 @@
 }
 
 @media (--not-mobile) {
-  @container editor (width < 650px) {
-    .codex-editor .ce-toolbar__plus {
-      left: 5px;
-    }
+  .codex-editor--compact .ce-toolbar__plus {
+    left: 5px;
   }
 }

@@ -65,15 +65,13 @@
 }
 
 @media (--not-mobile) {
-  @container editor (width < 650px) {
-    .codex-editor.codex-editor--rtl .ce-toolbar__plus {
-      left: 0px;
-      right: 5px;
-    }
+  .codex-editor--compact.codex-editor--rtl .ce-toolbar__plus {
+    left: 0px;
+    right: 5px;
+  }
 
-    .codex-editor.codex-editor--rtl .ce-toolbar__actions {
-      left: -5px;
-    }
+  .codex-editor--compact.codex-editor--rtl .ce-toolbar__actions {
+    left: -5px;
   }
 }
 
