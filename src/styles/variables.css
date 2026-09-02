@@ -45,9 +45,9 @@
   --content-width: 650px;
 
   /**
-   * Space reserved for Block Actions inside narrow editor containers
+   * Width reserved for Block Actions beside editor content
    */
-  --toolbar-actions-space: 50px;
+  --toolbar-actions-space: 58px;
 
   /**
    * Toolbar Plus Button and Toolbox buttons height and width
