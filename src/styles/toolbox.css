@@ -2,9 +2,9 @@
 
 }
 
-.codex-editor--narrow .ce-toolbox {
-  @media (--not-mobile){
-    .ce-popover {
+@media (--not-mobile){
+  @container editor (width < 650px) {
+    .ce-toolbox .ce-popover {
       right: 0;
       left: unset;
     }

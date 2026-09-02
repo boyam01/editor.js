@@ -84,11 +84,10 @@
   }
 }
 
-/**
- * Styles for Narrow mode
- */
-.codex-editor--narrow .ce-toolbar__plus {
-  @media (--not-mobile) {
-    left: 5px;
+@media (--not-mobile) {
+  @container editor (width < 650px) {
+    .codex-editor .ce-toolbar__plus {
+      left: 5px;
+    }
   }
 }

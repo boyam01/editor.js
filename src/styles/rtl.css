@@ -64,19 +64,16 @@
 
 }
 
-.codex-editor--narrow.codex-editor--rtl {
-  .ce-toolbar__plus {
-    @media (--not-mobile) {
+@media (--not-mobile) {
+  @container editor (width < 650px) {
+    .codex-editor.codex-editor--rtl .ce-toolbar__plus {
       left: 0px;
       right: 5px;
     }
-  }
 
-  .ce-toolbar__actions {
-    @media (--not-mobile) {
+    .codex-editor.codex-editor--rtl .ce-toolbar__actions {
       left: -5px;
     }
   }
 }
-
 

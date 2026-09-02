@@ -2,6 +2,7 @@
 * Editor wrapper
 */
 .codex-editor {
+  container: editor / inline-size;
   position: relative;
   box-sizing: border-box;
   z-index: 1;
@@ -17,28 +18,6 @@
      */
     [contenteditable]:empty::after {
       content: "\feff ";
-    }
-  }
-
-  /**
-   * Styles for narrow holder
-   */
-  &--narrow &__redactor {
-    @media (--not-mobile) {
-      margin-right: var(--narrow-mode-right-padding);
-    }
-  }
-
-  &--narrow&--rtl &__redactor {
-    @media (--not-mobile) {
-      margin-left: var(--narrow-mode-right-padding);
-      margin-right: 0;
-    }
-  }
-
-  &--narrow .ce-toolbar__actions {
-    @media (--not-mobile) {
-      right: -5px;
     }
   }
 
@@ -88,6 +67,23 @@
   */
   ::selection{
     background-color: var(--inlineSelectionColor);
+  }
+}
+
+@media (--not-mobile) {
+  @container editor (width < 650px) {
+    .codex-editor .codex-editor__redactor {
+      margin-right: var(--toolbar-actions-space);
+    }
+
+    .codex-editor.codex-editor--rtl .codex-editor__redactor {
+      margin-left: var(--toolbar-actions-space);
+      margin-right: 0;
+    }
+
+    .codex-editor .ce-toolbar__actions {
+      right: -5px;
+    }
   }
 }
 

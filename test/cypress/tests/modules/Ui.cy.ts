@@ -2,6 +2,57 @@ import { createEditorWithTextBlocks } from '../../support/utils/createEditorWith
 import type EditorJS from '../../../../types/index';
 
 describe('Ui module', function () {
+  describe('responsive layout', function () {
+    it('should not read holder width during initialization', function () {
+      cy.window()
+        .then(async (window) => {
+          const holder = window.document.createElement('div');
+          let holderWidthRead = false;
+
+          holder.id = 'editorjs';
+          Object.defineProperty(holder, 'offsetWidth', {
+            configurable: true,
+            get: () => {
+              holderWidthRead = true;
+
+              return 700;
+            },
+          });
+          window.document.body.appendChild(holder);
+
+          const editor = new window.EditorJS({
+            holder,
+          });
+
+          await editor.isReady;
+
+          expect(holderWidthRead).to.be.false;
+
+          editor.destroy();
+        });
+    });
+
+    it('should keep the plus button inside the holder after it becomes narrow', function () {
+      cy.viewport(1000, 800);
+      cy.createEditor();
+
+      cy.get('[data-cy=editorjs]')
+        .invoke('css', 'width', '500px')
+        .find('.ce-paragraph')
+        .click();
+
+      cy.get('[data-cy=editorjs]')
+        .then(($holder) => {
+          const holderRect = $holder[0].getBoundingClientRect();
+          const plusButtonRect = $holder.find('.ce-toolbar__plus')[0].getBoundingClientRect();
+
+          expect(plusButtonRect.width).to.be.greaterThan(0);
+          expect(plusButtonRect.left).to.be.at.least(holderRect.left);
+          expect(plusButtonRect.right).to.be.at.most(holderRect.right);
+        });
+    });
+  });
+
   describe('documentKeydown', function () {
     describe('Backspace', function () {
       it('should remove selected blocks', function () {
